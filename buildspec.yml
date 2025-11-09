@@ -2,27 +2,20 @@ version: 0.2
 
 env:
   variables:
-    IMAGE_NAME: "jhimanshu50/devbank-backend"
-    IMAGE_TAG: "latest"
-  parameter-store:
-    DOCKERHUB_USERNAME: "/devbank/dockerhub/username"
-    DOCKERHUB_TOKEN: "/devbank/dockerhub/token"
+    IMAGE_REPO_NAME: "devbank-backend"
+    AWS_REGION: "us-east-1"
 
 phases:
   pre_build:
     commands:
-      - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-      - docker buildx create --use --name multi || docker buildx use multi
+      - echo Logging in to Docker Hub...
+      - echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
   build:
     commands:
-      # build amd64 (Fargate x86_64). Use multi-arch later if you want.
-      - docker buildx build --platform linux/amd64 -t "$IMAGE_NAME:$IMAGE_TAG" --push .
-  post_build:
-    commands:
-      # IMPORTANT: container name must match your task definition: "backend"
-      - printf '[{"name":"backend","imageUri":"%s:%s"}]' "$IMAGE_NAME" "$IMAGE_TAG" > imagedefinitions.json
+      - echo Building Docker image...
+      - docker build -t $DOCKERHUB_USERNAME/$IMAGE_REPO_NAME:latest .
+      - echo Pushing Docker image...
+      - docker push $DOCKERHUB_USERNAME/$IMAGE_REPO_NAME:latest
 
 artifacts:
-  files:
-    - imagedefinitions.json
-
+  files: '**/*'
