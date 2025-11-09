@@ -1,16 +1,27 @@
 version: 0.2
 
+env:
+  parameter-store:
+    DOCKERHUB_USERNAME: "/devbank/dockerhub/username"
+    DOCKERHUB_TOKEN: "/devbank/dockerhub/token"
+
 phases:
   install:
     commands:
-      - echo "Installing Docker client"
+      - echo "Install phase started: $(date)"
   pre_build:
     commands:
-      - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+      - echo "Reading parameters from SSM..."
+      - test -n "$DOCKERHUB_USERNAME" && echo "Got DOCKERHUB_USERNAME"
+      - test -n "$DOCKERHUB_TOKEN" && echo "Got DOCKERHUB_TOKEN (length=${#DOCKERHUB_TOKEN})"
   build:
     commands:
-      - docker build -t "$IMAGE_REPO:$IMAGE_TAG" .
+      - echo "Build phase OK — nothing heavy for the demo."
   post_build:
     commands:
-      - docker push "$IMAGE_REPO:$IMAGE_TAG"
-      - echo "DONE"
+      - echo "SUCCESS: $(date)"
+
+artifacts:
+  files:
+    - '**/*'
+  discard-paths: yes
