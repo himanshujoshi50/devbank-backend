@@ -1,21 +1,22 @@
 version: 0.2
 
 env:
-  variables:
-    IMAGE_REPO_NAME: "devbank-backend"
-    AWS_REGION: "us-east-1"
+  parameter-store:
+    DOCKERHUB_USERNAME: "/devbank/dockerhub/username"
+    DOCKERHUB_TOKEN: "/devbank/dockerhub/token"
 
 phases:
   pre_build:
     commands:
-      - echo Logging in to Docker Hub...
-      - echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
+      - echo "Logging into Docker Hub..."
+      - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+      - IMAGE="jhimanshu50/devbank-backend:latest"
   build:
     commands:
-      - echo Building Docker image...
-      - docker build -t $DOCKERHUB_USERNAME/$IMAGE_REPO_NAME:latest .
-      - echo Pushing Docker image...
-      - docker push $DOCKERHUB_USERNAME/$IMAGE_REPO_NAME:latest
-
-artifacts:
-  files: '**/*'
+      - echo "Building image $IMAGE"
+      - docker build -t "$IMAGE" .
+  post_build:
+    commands:
+      - echo "Pushing $IMAGE"
+      - docker push "$IMAGE"
+      - echo "Done."
