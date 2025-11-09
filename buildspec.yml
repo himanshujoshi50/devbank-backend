@@ -3,17 +3,14 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo "Installing Docker client (already present on CodeBuild standard image)"
+      - echo "Installing Docker client"
   pre_build:
     commands:
-      - echo "Logging in to Docker Hub..."
       - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
   build:
     commands:
-      - echo "Building image $IMAGE_REPO:$IMAGE_TAG"
       - docker build -t "$IMAGE_REPO:$IMAGE_TAG" .
   post_build:
     commands:
-      - echo "Pushing image $IMAGE_REPO:$IMAGE_TAG"
       - docker push "$IMAGE_REPO:$IMAGE_TAG"
       - echo "DONE"
