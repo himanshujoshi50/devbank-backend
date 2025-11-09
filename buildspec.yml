@@ -1,22 +1,19 @@
 version: 0.2
 
-env:
-  parameter-store:
-    DOCKERHUB_USERNAME: "/devbank/dockerhub/username"
-    DOCKERHUB_TOKEN: "/devbank/dockerhub/token"
-
 phases:
+  install:
+    commands:
+      - echo "Installing Docker client (already present on CodeBuild standard image)"
   pre_build:
     commands:
-      - echo "Logging into Docker Hub..."
+      - echo "Logging in to Docker Hub..."
       - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-      - IMAGE="jhimanshu50/devbank-backend:latest"
   build:
     commands:
-      - echo "Building image $IMAGE"
-      - docker build -t "$IMAGE" .
+      - echo "Building image $IMAGE_REPO:$IMAGE_TAG"
+      - docker build -t "$IMAGE_REPO:$IMAGE_TAG" .
   post_build:
     commands:
-      - echo "Pushing $IMAGE"
-      - docker push "$IMAGE"
-      - echo "Done."
+      - echo "Pushing image $IMAGE_REPO:$IMAGE_TAG"
+      - docker push "$IMAGE_REPO:$IMAGE_TAG"
+      - echo "DONE"
